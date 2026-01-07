@@ -9,7 +9,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
-    /* ЕКРАННИЙ СТИЛЬ (UI) */
+    /* UI */
     body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f1f5f9; margin: 0; }
     .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; }
     .ui-input { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem 0.75rem; width: 100%; color: white; outline: none; transition: 0.2s; font-size: 14px; }
@@ -17,7 +17,6 @@
     label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; display: block; padding-left: 4px; }
     .section-title { color: #3b82f6; font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-left: 3px solid #3b82f6; padding-left: 10px; margin: 20px 0 10px 0; }
 
-    /* ✅ Footer для UI */
     .ui-rights {
       margin-top: 14px;
       padding-top: 10px;
@@ -29,7 +28,7 @@
     }
     .ui-rights b { color: rgba(226,232,240,0.95); }
 
-    /* PDF (PRINT) */
+    /* PDF */
     #pdf-document {
       display: none;
       width: 100%;
@@ -38,77 +37,61 @@
       font-family: "Times New Roman", serif;
     }
 
+    .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
+    .pdf-photo { border: 1px solid black; width: 35mm; height: 45mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+
     .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 10px; }
     .pdf-table td { border: 1px solid black; padding: 3px 6px; font-size: 12px; vertical-align: top; color: black; line-height: 1.15; }
-    .pdf-photo { border: 1px solid black; width: 35mm; height: 45mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
-    .page-break { page-break-after: always; }
-    .pdf-page-2 { padding-top: 12mm; }
 
-    /* ✅ СТОРІНКА PDF як контейнер + запас під футер */
-    .pdf-page{
-      position: relative;
-      padding-bottom: 14mm; /* місце під "всі права..." щоб не наїжджало */
-      min-height: 260mm;   /* щоб футер стабільно був "внизу сторінки" */
-      box-sizing: border-box;
-    }
-
-    /* ✅ Футер в PDF (СТАБІЛЬНО на ПК/мобільному) */
-    .pdf-rights{
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 3mm; /* всередині області друку */
+    /* ✅ Права в PDF (по центру, 2 рядки) */
+    .pdf-rights {
       text-align: center;
       font-size: 9px;
-      color: #222;
+      color: #111;
       line-height: 1.15;
+      margin-top: 8mm;
+      border-top: 1px solid #000;
+      padding-top: 2mm;
     }
-    .pdf-rights .line1{
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0 2mm;
-    }
-    .pdf-rights .line2{
-      margin-top: 1mm;
-      font-size: 9px;
-      letter-spacing: 0.2px;
-    }
-    .pdf-rights b{ font-weight: bold; }
+    .pdf-rights .line2 { margin-top: 1mm; }
+    .pdf-rights b { font-weight: bold; }
 
     /* Камера та Оверлеї */
     #cam-modal, #success-overlay { display: none; position: fixed; inset: 0; z-index: 5000; align-items: center; justify-content: center; }
     #cam-modal { background: black; }
     #success-overlay { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
 
-    /* ✅ Примусове перемикання в режим друку (особливо важливо на мобільному) */
+    /* ✅ Printing-mode */
     body.printing .no-print { display: none !important; }
     body.printing #pdf-document { display: block !important; }
 
-    /* ✅ СТИЛЬ ДЛЯ ДРУКУ (PDF) */
+    /* ✅ PRINT правила (головне для мобільного) */
     @media print {
       .no-print { display: none !important; }
       #pdf-document { display: block !important; }
       body { background: white !important; }
+
       @page { size: A4; margin: 10mm 15mm; }
 
-      /* ✅ Ніколи не друкувати оверлеї */
+      /* ніколи не друкувати оверлеї */
       #success-overlay, #cam-modal { display: none !important; }
+
+      /* ✅ Забороняємо розриви всередині */
+      table, tr, td, .pdf-page { page-break-inside: avoid !important; break-inside: avoid !important; }
+      .pdf-page { page-break-after: always; break-after: page; }
+      .pdf-page:last-child { page-break-after: auto; break-after: auto; }
     }
   </style>
 </head>
 
 <body class="p-2 md:p-6">
 
-  <!-- UI: ФОРМА -->
+  <!-- UI -->
   <div class="max-w-6xl mx-auto glass-card p-4 md:p-10 shadow-2xl no-print">
     <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 border-b border-white/10 pb-6">
       <div class="text-center md:text-left">
-        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">СДК</h1>
-        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
-          Повна анкета соціально-демографічних даних (всі 41 п.)
-        </p>
+        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">Battalion Records PRO</h1>
+        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Повна анкета соціально-демографічних даних (всі 41 п.)</p>
       </div>
 
       <div class="flex flex-col items-center gap-3">
@@ -126,86 +109,74 @@
     </header>
 
     <form id="ui-form" class="space-y-4">
-      <!-- Блок 0 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="md:col-span-2">
-          <label>ПІБ Повністю (пункт 0)</label>
-          <input type="text" id="in-pib" class="ui-input font-bold uppercase" />
-        </div>
-        <div class="md:col-span-2">
-          <label>Підрозділ, посада, військове звання</label>
-          <input type="text" id="in-head" class="ui-input italic" />
-        </div>
+        <div class="md:col-span-2"><label>ПІБ Повністю (пункт 0)</label><input type="text" id="in-pib" class="ui-input font-bold uppercase"></div>
+        <div class="md:col-span-2"><label>Підрозділ, посада, військове звання</label><input type="text" id="in-head" class="ui-input italic"></div>
       </div>
 
-      <!-- Блок 1-8 -->
       <div class="section-title">Основна інформація (1-8)</div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div><label>1. Дата народження</label><input type="text" id="in-p1" class="ui-input" /></div>
-        <div class="md:col-span-2"><label>2. Місце народження</label><input type="text" id="in-p2" class="ui-input" /></div>
-        <div class="md:col-span-2"><label>3. Адреса проживання, тел.</label><input type="text" id="in-p3" class="ui-input" /></div>
-        <div><label>4. Місце реєстрації (прописка)</label><input type="text" id="in-p4" class="ui-input" /></div>
-        <div><label>5. Число, місяць, рік призову</label><input type="text" id="in-p5" class="ui-input" /></div>
-        <div><label>6. Яким РВК призваний</label><input type="text" id="in-p6" class="ui-input" /></div>
-        <div><label>7. Національність</label><input type="text" id="in-p7" class="ui-input" /></div>
-        <div><label>8. Сімейний стан</label><input type="text" id="in-p8" class="ui-input" /></div>
+        <div><label>1. Дата народження</label><input type="text" id="in-p1" class="ui-input"></div>
+        <div class="md:col-span-2"><label>2. Місце народження</label><input type="text" id="in-p2" class="ui-input"></div>
+        <div class="md:col-span-2"><label>3. Адреса проживання, тел.</label><input type="text" id="in-p3" class="ui-input"></div>
+        <div><label>4. Місце реєстрації (прописка)</label><input type="text" id="in-p4" class="ui-input"></div>
+        <div><label>5. Число, місяць, рік призову</label><input type="text" id="in-p5" class="ui-input"></div>
+        <div><label>6. Яким РВК призваний</label><input type="text" id="in-p6" class="ui-input"></div>
+        <div><label>7. Національність</label><input type="text" id="in-p7" class="ui-input"></div>
+        <div><label>8. Сімейний стан</label><input type="text" id="in-p8" class="ui-input"></div>
       </div>
 
-      <!-- Блок 9 -->
       <div class="section-title">9. Склад сім'ї</div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white/5 rounded-xl">
-        <input type="text" id="in-p9-1" class="ui-input text-sm" placeholder="Батько (ПІБ, моб)" />
-        <input type="text" id="in-p9-2" class="ui-input text-sm" placeholder="Мати (ПІБ, моб)" />
-        <input type="text" id="in-p9-3" class="ui-input text-sm" placeholder="Брат / Сестра (ПІБ)" />
-        <input type="text" id="in-p9-5" class="ui-input text-sm" placeholder="Дружина / Чоловік (моб)" />
+        <input type="text" id="in-p9-1" class="ui-input text-sm" placeholder="Батько (ПІБ, моб)">
+        <input type="text" id="in-p9-2" class="ui-input text-sm" placeholder="Мати (ПІБ, моб)">
+        <input type="text" id="in-p9-3" class="ui-input text-sm" placeholder="Брат / Сестра (ПІБ)">
+        <input type="text" id="in-p9-5" class="ui-input text-sm" placeholder="Дружина / Чоловік (моб)">
         <textarea id="in-p9-6" class="ui-input md:col-span-2" placeholder="Діти (імена та дати народження)" rows="1"></textarea>
       </div>
 
-      <!-- Блок 10-21 -->
       <div class="section-title">Службові та ідентифікаційні дані (10-21)</div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><label>10. Військова освіта</label><input type="text" id="in-p10" class="ui-input" /></div>
-        <div><label>11. Цивільна освіта</label><input type="text" id="in-p11" class="ui-input" /></div>
-        <div><label>12. Стан здоров'я</label><input type="text" id="in-p12" class="ui-input" /></div>
-        <div><label>13. ВЛК (проходив/не проходив, коли)</label><input type="text" id="in-p13" class="ui-input" /></div>
-        <div class="md:col-span-2"><label>14. Участь в бойових діях</label><input type="text" id="in-p14" class="ui-input" /></div>
-        <div><label>15. № Військ. квитка, ким виданий</label><input type="text" id="in-p15" class="ui-input" /></div>
-        <div><label>16. № Паспорта, ким виданий</label><input type="text" id="in-p16" class="ui-input" /></div>
-        <div><label>17. Ідентифікаційний код (РНОКПП)</label><input type="text" id="in-p17" class="ui-input" /></div>
-        <div><label>18. Де працював до призову</label><input type="text" id="in-p18" class="ui-input" /></div>
-        <div><label>19. Захоплення</label><input type="text" id="in-p19" class="ui-input" /></div>
-        <div><label>20. Де проходив строкову службу</label><input type="text" id="in-p20" class="ui-input" /></div>
-        <div><label>21. Аліменти</label><input type="text" id="in-p21" class="ui-input" /></div>
+        <div><label>10. Військова освіта</label><input type="text" id="in-p10" class="ui-input"></div>
+        <div><label>11. Цивільна освіта</label><input type="text" id="in-p11" class="ui-input"></div>
+        <div><label>12. Стан здоров'я</label><input type="text" id="in-p12" class="ui-input"></div>
+        <div><label>13. ВЛК (проходив/не проходив, коли)</label><input type="text" id="in-p13" class="ui-input"></div>
+        <div class="md:col-span-2"><label>14. Участь в бойових діях</label><input type="text" id="in-p14" class="ui-input"></div>
+        <div><label>15. № Військ. квитка, ким виданий</label><input type="text" id="in-p15" class="ui-input"></div>
+        <div><label>16. № Паспорта, ким виданий</label><input type="text" id="in-p16" class="ui-input"></div>
+        <div><label>17. Ідентифікаційний код (РНОКПП)</label><input type="text" id="in-p17" class="ui-input"></div>
+        <div><label>18. Де працював до призову</label><input type="text" id="in-p18" class="ui-input"></div>
+        <div><label>19. Захоплення</label><input type="text" id="in-p19" class="ui-input"></div>
+        <div><label>20. Де проходив строкову службу</label><input type="text" id="in-p20" class="ui-input"></div>
+        <div><label>21. Аліменти</label><input type="text" id="in-p21" class="ui-input"></div>
       </div>
 
-      <!-- Блок 22-41 -->
       <div class="section-title">Особисті дані та прикмети (22-41)</div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="md:col-span-2"><label>22. ПОЗИВНИЙ</label><input type="text" id="in-p22" class="ui-input font-black text-blue-400" /></div>
-        <div><label>23. Судимість</label><input type="text" id="in-p23" class="ui-input" /></div>
-        <div><label>24. Група крові</label><input type="text" id="in-p24" class="ui-input" /></div>
-        <div><label>25. Державні нагороди</label><input type="text" id="in-p25" class="ui-input" /></div>
-        <div><label>26. Кредит (банк, сума)</label><input type="text" id="in-p26" class="ui-input" /></div>
-        <div><label>27. Наявність УБД</label><input type="text" id="in-p27" class="ui-input" /></div>
-        <div><label>28. Ріст</label><input type="text" id="in-p28" class="ui-input" /></div>
-        <div><label>29. Вага</label><input type="text" id="in-p29" class="ui-input" /></div>
-        <div><label>30. Статура</label><input type="text" id="in-p30" class="ui-input" /></div>
-        <div><label>31. Розм. взуття</label><input type="text" id="in-p31" class="ui-input" /></div>
-        <div><label>32. Волосся</label><input type="text" id="in-p32" class="ui-input" /></div>
-        <div><label>33. Зуби</label><input type="text" id="in-p33" class="ui-input" /></div>
-        <div class="md:col-span-2"><label>34. Татуювання (зміст, місце)</label><input type="text" id="in-p34" class="ui-input" /></div>
-        <div><label>35. Відсутність кінцівок</label><input type="text" id="in-p35" class="ui-input" /></div>
-        <div class="md:col-span-3"><label>36. Шкірний покрив (шрами, родимки)</label><input type="text" id="in-p36" class="ui-input" /></div>
-        <div><label>37. Форма зачіски</label><input type="text" id="in-p37" class="ui-input" /></div>
-        <div><label>38. Вуса</label><input type="text" id="in-p38" class="ui-input" /></div>
-        <div><label>39. Борода</label><input type="text" id="in-p39" class="ui-input" /></div>
-        <div><label>40. Шкідливі звички</label><input type="text" id="in-p40" class="ui-input" /></div>
+        <div class="md:col-span-2"><label>22. ПОЗИВНИЙ</label><input type="text" id="in-p22" class="ui-input font-black text-blue-400"></div>
+        <div><label>23. Судимість</label><input type="text" id="in-p23" class="ui-input"></div>
+        <div><label>24. Група крові</label><input type="text" id="in-p24" class="ui-input"></div>
+        <div><label>25. Державні нагороди</label><input type="text" id="in-p25" class="ui-input"></div>
+        <div><label>26. Кредит (банк, сума)</label><input type="text" id="in-p26" class="ui-input"></div>
+        <div><label>27. Наявність УБД</label><input type="text" id="in-p27" class="ui-input"></div>
+        <div><label>28. Ріст</label><input type="text" id="in-p28" class="ui-input"></div>
+        <div><label>29. Вага</label><input type="text" id="in-p29" class="ui-input"></div>
+        <div><label>30. Статура</label><input type="text" id="in-p30" class="ui-input"></div>
+        <div><label>31. Розм. взуття</label><input type="text" id="in-p31" class="ui-input"></div>
+        <div><label>32. Волосся</label><input type="text" id="in-p32" class="ui-input"></div>
+        <div><label>33. Зуби</label><input type="text" id="in-p33" class="ui-input"></div>
+        <div class="md:col-span-2"><label>34. Татуювання (зміст, місце)</label><input type="text" id="in-p34" class="ui-input"></div>
+        <div><label>35. Відсутність кінцівок</label><input type="text" id="in-p35" class="ui-input"></div>
+        <div class="md:col-span-3"><label>36. Шкірний покрив (шрами, родимки)</label><input type="text" id="in-p36" class="ui-input"></div>
+        <div><label>37. Форма зачіски</label><input type="text" id="in-p37" class="ui-input"></div>
+        <div><label>38. Вуса</label><input type="text" id="in-p38" class="ui-input"></div>
+        <div><label>39. Борода</label><input type="text" id="in-p39" class="ui-input"></div>
+        <div><label>40. Шкідливі звички</label><input type="text" id="in-p40" class="ui-input"></div>
         <div class="md:col-span-4"><label>41. Які плани на майбутнє</label><textarea id="in-p41" class="ui-input" rows="1"></textarea></div>
       </div>
 
-      <!-- Згода -->
       <div class="flex items-start gap-4 p-5 bg-emerald-500/5 rounded-2xl border border-emerald-500/20 my-8">
-        <input type="checkbox" id="consent-check" class="w-6 h-6 mt-1 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500" />
+        <input type="checkbox" id="consent-check" class="w-6 h-6 mt-1 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500">
         <label for="consent-check" class="text-slate-300 normal-case font-medium mb-0 cursor-pointer text-xs leading-relaxed">
           Надаю згоду на обробку моїх персональних даних відповідно до Закону України «Про захист персональних даних».
         </label>
@@ -216,7 +187,6 @@
         СФОРМУВАТИ ПОВНИЙ PDF
       </button>
 
-      <!-- ✅ ПРАВА (UI) -->
       <div class="ui-rights">
         © <b>Всі права захищені.</b> Будь-яке використання матеріалів цього застосунку без письмового дозволу правовласника
         може бути порушенням чинного законодавства України.
@@ -225,18 +195,11 @@
     </form>
   </div>
 
-  <!-- PDF ТЕМПЛЕЙТ (ТІЛЬКИ ДЛЯ ДРУКУ) -->
+  <!-- PDF -->
   <div id="pdf-document">
 
-    <!-- СТОРІНКА 1 -->
+    <!-- PAGE 1: 1–21 -->
     <div class="pdf-page">
-
-      <!-- ✅ Права на сторінці 1 -->
-      <div class="pdf-rights">
-        <div class="line1">© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
-        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
-      </div>
-
       <div class="pdf-photo" id="pdf-photo-target">ФОТО</div>
 
       <div class="pdf-title" style="margin-top: -30px;">ЛИСТ</div>
@@ -294,22 +257,17 @@
         <tr><td>20.</td><td>Де проходив строкову службу</td><td id="out-p20"></td></tr>
         <tr><td>21.</td><td>Аліменти</td><td id="out-p21"></td></tr>
       </table>
-    </div>
 
-    <div class="page-break"></div>
-
-    <!-- СТОРІНКА 2 -->
-    <div class="pdf-page pdf-page-2">
-
-      <!-- ✅ Права на сторінці 2 -->
       <div class="pdf-rights">
-        <div class="line1">© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
+        <div>© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
         <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
       </div>
+    </div>
 
+    <!-- PAGE 2: 22–41 -->
+    <div class="pdf-page pdf-page-2">
       <table class="pdf-table">
         <colgroup><col style="width: 35px;"><col style="width: 210px;"><col /></colgroup>
-
         <tr><td>22.</td><td><b>ПОЗИВНИЙ</b></td><td id="out-p22" style="font-weight:bold"></td></tr>
         <tr><td>23.</td><td>Судимість</td><td id="out-p23"></td></tr>
         <tr><td>24.</td><td>Група крові</td><td id="out-p24"></td></tr>
@@ -348,6 +306,11 @@
           <div style="font-size: 9px;">(підпис)</div>
         </div>
       </div>
+
+      <div class="pdf-rights">
+        <div>© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
+        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
+      </div>
     </div>
   </div>
 
@@ -370,9 +333,7 @@
         </svg>
       </div>
       <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-tighter">Файл готовий!</h2>
-      <p class="text-lg text-slate-400 leading-tight">
-        Перешліть згенерований pdf <br><b class="text-blue-400">ППП Батальйону!</b>
-      </p>
+      <p class="text-lg text-slate-400 leading-tight">Перешліть згенерований pdf <br><b class="text-blue-400">ППП Батальйону!</b></p>
     </div>
   </div>
 
@@ -385,10 +346,8 @@
       const r = new FileReader();
       r.onload = (e) => {
         imgData = e.target.result;
-        document.getElementById('ui-photo-box').innerHTML =
-          `<img src="${imgData}" class="w-full h-full object-cover">`;
-        document.getElementById('pdf-photo-target').innerHTML =
-          `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('ui-photo-box').innerHTML = `<img src="${imgData}" class="w-full h-full object-cover">`;
+        document.getElementById('pdf-photo-target').innerHTML = `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
       };
       r.readAsDataURL(file);
     }
@@ -415,11 +374,8 @@
       c.getContext('2d').drawImage(v, 0, 0);
       imgData = c.toDataURL('image/jpeg');
 
-      document.getElementById('ui-photo-box').innerHTML =
-        `<img src="${imgData}" class="w-full h-full object-cover">`;
-      document.getElementById('pdf-photo-target').innerHTML =
-        `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
-
+      document.getElementById('ui-photo-box').innerHTML = `<img src="${imgData}" class="w-full h-full object-cover">`;
+      document.getElementById('pdf-photo-target').innerHTML = `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
       stopCam();
     }
 
@@ -428,16 +384,15 @@
       if (!pib) { alert("Введіть ПІБ!"); return; }
       if (!document.getElementById('consent-check').checked) { alert("Необхідно надати згоду!"); return; }
 
-      // Прибираємо оверлеї перед друком
       document.getElementById('success-overlay').style.display = 'none';
       document.getElementById('cam-modal').style.display = 'none';
 
-      // Назва PDF: "Військова Анкета — Прізвище Ім'я"
+      // Назва PDF
       const pibParts = pib.split(/\s+/);
       const shortName = pibParts.slice(0, 2).join(' ');
       document.title = `Військова Анкета — ${shortName}`;
 
-      // Мапінг усіх полів
+      // Мапінг
       const allIn = document.querySelectorAll('input[id^="in-"], textarea[id^="in-"]');
       allIn.forEach(el => {
         const outId = el.id.replace('in-', 'out-');
@@ -448,13 +403,11 @@
       document.getElementById('out-pib-consent').innerText = pib;
       document.getElementById('pdf-date').innerText = new Date().toLocaleDateString('uk-UA');
 
-      // ✅ printing режим для мобільного
       document.body.classList.add('printing');
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           window.print();
-
           setTimeout(() => {
             document.body.classList.remove('printing');
             document.title = originalTitle;
