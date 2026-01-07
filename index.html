@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Військова Анкета</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
@@ -16,14 +17,19 @@
     label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; display: block; padding-left: 4px; }
     .section-title { color: #3b82f6; font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-left: 3px solid #3b82f6; padding-left: 10px; margin: 20px 0 10px 0; }
 
-    /* СТИЛЬ ДЛЯ ДРУКУ (PDF) */
-    @media print {
-      .no-print { display: none !important; }
-      #pdf-document { display: block !important; }
-      body { background: white !important; }
-      @page { size: A4; margin: 10mm 15mm; }
+    /* ✅ Footer для UI */
+    .ui-rights {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      line-height: 1.35;
+      color: rgba(148,163,184,0.95);
+      text-align: center;
     }
+    .ui-rights b { color: rgba(226,232,240,0.95); }
 
+    /* PDF (PRINT) */
     #pdf-document {
       display: none;
       width: 100%;
@@ -31,19 +37,65 @@
       color: black;
       font-family: "Times New Roman", serif;
     }
+
     .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 10px; }
     .pdf-table td { border: 1px solid black; padding: 3px 6px; font-size: 12px; vertical-align: top; color: black; line-height: 1.15; }
     .pdf-photo { border: 1px solid black; width: 35mm; height: 45mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
     .page-break { page-break-after: always; }
-
-    /* ВІДСТУП ЗВЕРХУ НА 2-Й СТОРІНЦІ */
     .pdf-page-2 { padding-top: 12mm; }
+
+    /* ✅ СТОРІНКА PDF як контейнер + запас під футер */
+    .pdf-page{
+      position: relative;
+      padding-bottom: 14mm; /* місце під "всі права..." щоб не наїжджало */
+      min-height: 260mm;   /* щоб футер стабільно був "внизу сторінки" */
+      box-sizing: border-box;
+    }
+
+    /* ✅ Футер в PDF (СТАБІЛЬНО на ПК/мобільному) */
+    .pdf-rights{
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 3mm; /* всередині області друку */
+      text-align: center;
+      font-size: 9px;
+      color: #222;
+      line-height: 1.15;
+    }
+    .pdf-rights .line1{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 2mm;
+    }
+    .pdf-rights .line2{
+      margin-top: 1mm;
+      font-size: 9px;
+      letter-spacing: 0.2px;
+    }
+    .pdf-rights b{ font-weight: bold; }
 
     /* Камера та Оверлеї */
     #cam-modal, #success-overlay { display: none; position: fixed; inset: 0; z-index: 5000; align-items: center; justify-content: center; }
     #cam-modal { background: black; }
     #success-overlay { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
+
+    /* ✅ Примусове перемикання в режим друку (особливо важливо на мобільному) */
+    body.printing .no-print { display: none !important; }
+    body.printing #pdf-document { display: block !important; }
+
+    /* ✅ СТИЛЬ ДЛЯ ДРУКУ (PDF) */
+    @media print {
+      .no-print { display: none !important; }
+      #pdf-document { display: block !important; }
+      body { background: white !important; }
+      @page { size: A4; margin: 10mm 15mm; }
+
+      /* ✅ Ніколи не друкувати оверлеї */
+      #success-overlay, #cam-modal { display: none !important; }
+    }
   </style>
 </head>
 
@@ -53,20 +105,22 @@
   <div class="max-w-6xl mx-auto glass-card p-4 md:p-10 shadow-2xl no-print">
     <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 border-b border-white/10 pb-6">
       <div class="text-center md:text-left">
-        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">Battalion Records PRO</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">СДК</h1>
         <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">
           Повна анкета соціально-демографічних даних (всі 41 п.)
         </p>
       </div>
+
       <div class="flex flex-col items-center gap-3">
-        <!-- FIX: було "justify-content: center; overflow-hidden" всередині class -->
         <div id="ui-photo-box" class="w-24 h-32 bg-slate-900 border-2 border-dashed border-slate-700 rounded-xl flex items-center justify-center overflow-hidden">
           <span class="text-[10px] text-slate-600 font-bold uppercase text-center">Фото<br>35x45</span>
         </div>
+
         <div class="flex gap-2">
           <button type="button" onclick="startCam()" class="px-4 py-2 bg-blue-600 rounded-xl text-[10px] font-black hover:bg-blue-500 transition">КАМЕРА</button>
           <button type="button" onclick="document.getElementById('file-in').click()" class="px-4 py-2 bg-slate-800 rounded-xl text-[10px] font-black hover:bg-slate-700 transition">ФАЙЛ</button>
         </div>
+
         <input type="file" id="file-in" hidden accept="image/*" onchange="loadImg(this.files[0])" />
       </div>
     </header>
@@ -161,13 +215,28 @@
         class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-6 rounded-[2rem] text-xl shadow-2xl transition transform active:scale-95 uppercase tracking-tighter">
         СФОРМУВАТИ ПОВНИЙ PDF
       </button>
+
+      <!-- ✅ ПРАВА (UI) -->
+      <div class="ui-rights">
+        © <b>Всі права захищені.</b> Будь-яке використання матеріалів цього застосунку без письмового дозволу правовласника
+        може бути порушенням чинного законодавства України.
+        <span class="block mt-1">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></span>
+      </div>
     </form>
   </div>
 
   <!-- PDF ТЕМПЛЕЙТ (ТІЛЬКИ ДЛЯ ДРУКУ) -->
   <div id="pdf-document">
+
     <!-- СТОРІНКА 1 -->
     <div class="pdf-page">
+
+      <!-- ✅ Права на сторінці 1 -->
+      <div class="pdf-rights">
+        <div class="line1">© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
+        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
+      </div>
+
       <div class="pdf-photo" id="pdf-photo-target">ФОТО</div>
 
       <div class="pdf-title" style="margin-top: -30px;">ЛИСТ</div>
@@ -231,6 +300,13 @@
 
     <!-- СТОРІНКА 2 -->
     <div class="pdf-page pdf-page-2">
+
+      <!-- ✅ Права на сторінці 2 -->
+      <div class="pdf-rights">
+        <div class="line1">© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
+        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
+      </div>
+
       <table class="pdf-table">
         <colgroup><col style="width: 35px;"><col style="width: 210px;"><col /></colgroup>
 
@@ -352,6 +428,10 @@
       if (!pib) { alert("Введіть ПІБ!"); return; }
       if (!document.getElementById('consent-check').checked) { alert("Необхідно надати згоду!"); return; }
 
+      // Прибираємо оверлеї перед друком
+      document.getElementById('success-overlay').style.display = 'none';
+      document.getElementById('cam-modal').style.display = 'none';
+
       // Назва PDF: "Військова Анкета — Прізвище Ім'я"
       const pibParts = pib.split(/\s+/);
       const shortName = pibParts.slice(0, 2).join(' ');
@@ -368,13 +448,26 @@
       document.getElementById('out-pib-consent').innerText = pib;
       document.getElementById('pdf-date').innerText = new Date().toLocaleDateString('uk-UA');
 
-      window.print();
+      // ✅ printing режим для мобільного
+      document.body.classList.add('printing');
 
-      setTimeout(() => {
-        document.title = originalTitle;
-        document.getElementById('success-overlay').style.display = 'flex';
-      }, 1000);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.print();
+
+          setTimeout(() => {
+            document.body.classList.remove('printing');
+            document.title = originalTitle;
+            document.getElementById('success-overlay').style.display = 'flex';
+          }, 800);
+        });
+      });
     }
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('printing');
+      document.title = originalTitle;
+    });
   </script>
 </body>
 </html>
