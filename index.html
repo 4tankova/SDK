@@ -40,68 +40,39 @@
     .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
     .pdf-photo { border: 1px solid black; width: 35mm; height: 45mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-    .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 0; }
+    .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 10px; }
     .pdf-table td { border: 1px solid black; padding: 3px 6px; font-size: 12px; vertical-align: top; color: black; line-height: 1.15; }
 
-    /* ✅ Сторінка PDF як жорсткий A4-контейнер */
-    .pdf-page{
-      position: relative;
-      box-sizing: border-box;
-      padding-bottom: 14mm; /* місце під футер */
-    }
-
-    /* ✅ Футер ПРАВА — завжди внизу сторінки, не може “виїхати” */
-    .pdf-rights{
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-top: 1px solid #000;
-      padding-top: 2mm;
-      text-align: center;
+    /* ✅ Рядок “права” в таблиці */
+    .pdf-rights-row {
       font-size: 9px;
-      color: #111;
       line-height: 1.15;
+      text-align: center;
+      padding: 4px 6px !important;
     }
-    .pdf-rights .line2 { margin-top: 1mm; }
-    .pdf-rights b { font-weight: bold; }
+    .pdf-rights-row b { font-weight: bold; }
 
     /* Камера та Оверлеї */
     #cam-modal, #success-overlay { display: none; position: fixed; inset: 0; z-index: 5000; align-items: center; justify-content: center; }
     #cam-modal { background: black; }
     #success-overlay { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
 
-    /* Printing-mode */
+    /* printing-mode */
     body.printing .no-print { display: none !important; }
     body.printing #pdf-document { display: block !important; }
 
-    /* ✅ PRINT — головне для мобільного */
     @media print {
       .no-print { display: none !important; }
       #pdf-document { display: block !important; }
       body { background: white !important; }
-
       @page { size: A4; margin: 10mm 15mm; }
-
       #success-overlay, #cam-modal { display: none !important; }
 
-      /* ✅ Фіксована висота друк-зони (A4 297mm - top/bot margins 20mm = 277mm) */
-      .pdf-page{
-        height: 277mm;
-        overflow: hidden; /* прибирає “виштовхування” на нову сторінку (саме воно й робило пусту сторінку) */
-      }
-
-      /* ✅ Трохи стискаємо таблицю, щоб 1-ша сторінка гарантовано влазила на мобільному */
-      .pdf-table td{
-        font-size: 11px !important;
-        padding: 2px 5px !important;
-        line-height: 1.1 !important;
-      }
-
-      /* ✅ Не розривати всередині таблиць/рядків */
+      /* ✅ не рвати рядки */
       table, tr, td { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .pdf-page { break-after: page; page-break-after: always; }
-      .pdf-page:last-child { break-after: auto; page-break-after: auto; }
+
+      /* ✅ нормальний розрив між сторінками */
+      .page-break { break-after: page; page-break-after: always; }
     }
   </style>
 </head>
@@ -112,7 +83,7 @@
   <div class="max-w-6xl mx-auto glass-card p-4 md:p-10 shadow-2xl no-print">
     <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 border-b border-white/10 pb-6">
       <div class="text-center md:text-left">
-        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">СДК</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">Battalion Records PRO</h1>
         <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Повна анкета соціально-демографічних даних (всі 41 п.)</p>
       </div>
 
@@ -247,7 +218,7 @@
         <tr><td>8.</td><td>Сімейний стан</td><td id="out-p8"></td></tr>
 
         <tr>
-          <td style="height: 94px;">9.</td>
+          <td style="height: 100px;">9.</td>
           <td style="padding: 0;">
             <div style="text-align: center; font-weight: bold; border-bottom: 1px solid black;">СКЛАД СІМ'Ї</div>
             <div style="padding: 3px; border-bottom: 1px solid black;">Батько - моб:</div>
@@ -278,18 +249,24 @@
         <tr><td>19.</td><td>Захоплення</td><td id="out-p19"></td></tr>
         <tr><td>20.</td><td>Де проходив строкову службу</td><td id="out-p20"></td></tr>
         <tr><td>21.</td><td>Аліменти</td><td id="out-p21"></td></tr>
-      </table>
 
-      <div class="pdf-rights">
-        <div>© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
-        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
-      </div>
+        <!-- ✅ ПРАВА як останній рядок сторінки -->
+        <tr>
+          <td colspan="3" class="pdf-rights-row">
+            © <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.<br>
+            Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b>
+          </td>
+        </tr>
+      </table>
     </div>
+
+    <div class="page-break"></div>
 
     <!-- PAGE 2 -->
     <div class="pdf-page" style="padding-top: 12mm;">
       <table class="pdf-table">
         <colgroup><col style="width: 35px;"><col style="width: 210px;"><col /></colgroup>
+
         <tr><td>22.</td><td><b>ПОЗИВНИЙ</b></td><td id="out-p22" style="font-weight:bold"></td></tr>
         <tr><td>23.</td><td>Судимість</td><td id="out-p23"></td></tr>
         <tr><td>24.</td><td>Група крові</td><td id="out-p24"></td></tr>
@@ -329,12 +306,16 @@
         </div>
       </div>
 
-      <div class="pdf-rights">
-        <div>© <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.</div>
-        <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
-      </div>
+      <!-- ✅ ПРАВА як окремий рядок “табличкою” внизу -->
+      <table class="pdf-table" style="margin-top: 10px;">
+        <tr>
+          <td class="pdf-rights-row">
+            © <b>Всі права захищені.</b> Використання без дозволу — порушення чинного законодавства України.<br>
+            Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b>
+          </td>
+        </tr>
+      </table>
     </div>
-
   </div>
 
   <!-- MODALS -->
@@ -397,7 +378,6 @@
 
       document.getElementById('ui-photo-box').innerHTML = `<img src="${imgData}" class="w-full h-full object-cover">`;
       document.getElementById('pdf-photo-target').innerHTML = `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
-
       stopCam();
     }
 
@@ -409,12 +389,10 @@
       document.getElementById('success-overlay').style.display = 'none';
       document.getElementById('cam-modal').style.display = 'none';
 
-      // Назва PDF
       const pibParts = pib.split(/\s+/);
       const shortName = pibParts.slice(0, 2).join(' ');
       document.title = `Військова Анкета — ${shortName}`;
 
-      // Мапінг
       const allIn = document.querySelectorAll('input[id^="in-"], textarea[id^="in-"]');
       allIn.forEach(el => {
         const outId = el.id.replace('in-', 'out-');
