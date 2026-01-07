@@ -40,18 +40,28 @@
     .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
     .pdf-photo { border: 1px solid black; width: 35mm; height: 45mm; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-    .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 10px; }
+    .pdf-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-bottom: 0; }
     .pdf-table td { border: 1px solid black; padding: 3px 6px; font-size: 12px; vertical-align: top; color: black; line-height: 1.15; }
 
-    /* ✅ Права в PDF (по центру, 2 рядки) */
-    .pdf-rights {
+    /* ✅ Сторінка PDF як жорсткий A4-контейнер */
+    .pdf-page{
+      position: relative;
+      box-sizing: border-box;
+      padding-bottom: 14mm; /* місце під футер */
+    }
+
+    /* ✅ Футер ПРАВА — завжди внизу сторінки, не може “виїхати” */
+    .pdf-rights{
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid #000;
+      padding-top: 2mm;
       text-align: center;
       font-size: 9px;
       color: #111;
       line-height: 1.15;
-      margin-top: 8mm;
-      border-top: 1px solid #000;
-      padding-top: 2mm;
     }
     .pdf-rights .line2 { margin-top: 1mm; }
     .pdf-rights b { font-weight: bold; }
@@ -61,11 +71,11 @@
     #cam-modal { background: black; }
     #success-overlay { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); }
 
-    /* ✅ Printing-mode */
+    /* Printing-mode */
     body.printing .no-print { display: none !important; }
     body.printing #pdf-document { display: block !important; }
 
-    /* ✅ PRINT правила (головне для мобільного) */
+    /* ✅ PRINT — головне для мобільного */
     @media print {
       .no-print { display: none !important; }
       #pdf-document { display: block !important; }
@@ -73,13 +83,25 @@
 
       @page { size: A4; margin: 10mm 15mm; }
 
-      /* ніколи не друкувати оверлеї */
       #success-overlay, #cam-modal { display: none !important; }
 
-      /* ✅ Забороняємо розриви всередині */
-      table, tr, td, .pdf-page { page-break-inside: avoid !important; break-inside: avoid !important; }
-      .pdf-page { page-break-after: always; break-after: page; }
-      .pdf-page:last-child { page-break-after: auto; break-after: auto; }
+      /* ✅ Фіксована висота друк-зони (A4 297mm - top/bot margins 20mm = 277mm) */
+      .pdf-page{
+        height: 277mm;
+        overflow: hidden; /* прибирає “виштовхування” на нову сторінку (саме воно й робило пусту сторінку) */
+      }
+
+      /* ✅ Трохи стискаємо таблицю, щоб 1-ша сторінка гарантовано влазила на мобільному */
+      .pdf-table td{
+        font-size: 11px !important;
+        padding: 2px 5px !important;
+        line-height: 1.1 !important;
+      }
+
+      /* ✅ Не розривати всередині таблиць/рядків */
+      table, tr, td { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .pdf-page { break-after: page; page-break-after: always; }
+      .pdf-page:last-child { break-after: auto; page-break-after: auto; }
     }
   </style>
 </head>
@@ -90,7 +112,7 @@
   <div class="max-w-6xl mx-auto glass-card p-4 md:p-10 shadow-2xl no-print">
     <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 border-b border-white/10 pb-6">
       <div class="text-center md:text-left">
-        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">Battalion Records PRO</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter text-white uppercase">СДК</h1>
         <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Повна анкета соціально-демографічних даних (всі 41 п.)</p>
       </div>
 
@@ -198,7 +220,7 @@
   <!-- PDF -->
   <div id="pdf-document">
 
-    <!-- PAGE 1: 1–21 -->
+    <!-- PAGE 1 -->
     <div class="pdf-page">
       <div class="pdf-photo" id="pdf-photo-target">ФОТО</div>
 
@@ -225,7 +247,7 @@
         <tr><td>8.</td><td>Сімейний стан</td><td id="out-p8"></td></tr>
 
         <tr>
-          <td style="height: 100px;">9.</td>
+          <td style="height: 94px;">9.</td>
           <td style="padding: 0;">
             <div style="text-align: center; font-weight: bold; border-bottom: 1px solid black;">СКЛАД СІМ'Ї</div>
             <div style="padding: 3px; border-bottom: 1px solid black;">Батько - моб:</div>
@@ -264,8 +286,8 @@
       </div>
     </div>
 
-    <!-- PAGE 2: 22–41 -->
-    <div class="pdf-page pdf-page-2">
+    <!-- PAGE 2 -->
+    <div class="pdf-page" style="padding-top: 12mm;">
       <table class="pdf-table">
         <colgroup><col style="width: 35px;"><col style="width: 210px;"><col /></colgroup>
         <tr><td>22.</td><td><b>ПОЗИВНИЙ</b></td><td id="out-p22" style="font-weight:bold"></td></tr>
@@ -312,6 +334,7 @@
         <div class="line2">Розробник: <b>ШВИДЧЕНКО ЮЛІЯ</b></div>
       </div>
     </div>
+
   </div>
 
   <!-- MODALS -->
@@ -357,9 +380,7 @@
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
         document.getElementById('vid').srcObject = stream;
         document.getElementById('cam-modal').style.display = 'flex';
-      } catch (e) {
-        alert("Камера недоступна");
-      }
+      } catch (e) { alert("Камера недоступна"); }
     }
 
     function stopCam() {
@@ -376,6 +397,7 @@
 
       document.getElementById('ui-photo-box').innerHTML = `<img src="${imgData}" class="w-full h-full object-cover">`;
       document.getElementById('pdf-photo-target').innerHTML = `<img src="${imgData}" style="width:100%; height:100%; object-fit:cover;">`;
+
       stopCam();
     }
 
